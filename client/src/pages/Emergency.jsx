@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import QRCode from "qrcode";
 import API from "../api/api";
@@ -84,7 +84,7 @@ export default function EmergencyAccess() {
   };
 
   // Call server to deactivate the token in the DB
-  const revokeOnServer = async () => {
+  const revokeOnServer = useCallback(async () => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       if (user?.id && token?.id) {
@@ -94,7 +94,7 @@ export default function EmergencyAccess() {
         });
       }
     } catch { /* best effort */ }
-  };
+  }, [token]);
 
   const revokeAccess = async () => {
     if (revokedRef.current) return;
@@ -113,7 +113,7 @@ export default function EmergencyAccess() {
         setAutoExpired(true);
       });
     }
-  }, [expired, token]);
+  }, [expired, token, revokeOnServer]);
 
   const formatTime = (iso) => {
     if (!iso) return "—";
